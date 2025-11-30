@@ -89,19 +89,32 @@ function ProductFilters({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => onCategoryChange(cat)}
-            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-              activeCategory === cat
-                ? "border-transparent bg-primary text-primary-foreground shadow-sm"
-                : "border-border bg-secondary text-secondary-foreground hover:border-ring/50"
-            }`}
-          >
-            {cat === "all" ? "All" : cat}
-          </button>
-        ))}
+        <select
+          className="block rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900 sm:hidden"
+          value={activeCategory}
+          onChange={(e) => onCategoryChange(e.target.value)}
+        >
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat === "all" ? "All" : cat}
+            </option>
+          ))}
+        </select>
+        <div className="hidden flex-wrap items-center gap-2 sm:flex">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => onCategoryChange(cat)}
+              className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                activeCategory === cat
+                  ? "border-transparent bg-primary text-primary-foreground shadow-sm"
+                  : "border-border bg-secondary text-secondary-foreground hover:border-ring/50"
+              }`}
+            >
+              {cat === "all" ? "All" : cat}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
