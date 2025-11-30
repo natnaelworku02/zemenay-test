@@ -8,8 +8,6 @@ type ProductGridProps = {
   products: Product[]
   favorites: Product[]
   onFavorite: (product: Product) => void
-  onEdit?: (product: Product) => void
-  onDelete?: (product: Product) => void
   emptyText?: string
   loading?: boolean
 }
@@ -18,8 +16,6 @@ function ProductGrid({
   products,
   favorites,
   onFavorite,
-  onEdit,
-  onDelete,
   emptyText,
   loading,
 }: ProductGridProps) {
@@ -49,8 +45,6 @@ function ProductGrid({
           product={product}
           isFavorite={favorites.some((f) => f.id === product.id)}
           onFavorite={onFavorite}
-          onEdit={onEdit}
-          onDelete={onDelete}
         />
       ))}
     </div>

@@ -8,6 +8,7 @@ import toast from "react-hot-toast"
 import { Button } from "@/components/ui/button"
 import { login, register } from "@/features/authSlice"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { useEffect } from "react"
 
 export default function LoginPage() {
   const dispatch = useAppDispatch()
@@ -21,6 +22,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      router.push("/")
+    }
+  }, [router, user])
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

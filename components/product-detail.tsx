@@ -11,9 +11,11 @@ type ProductDetailProps = {
   product: Product
   isFavorite?: boolean
   onFavorite: (product: Product) => void
+  onEdit?: () => void
+  onDelete?: () => void
 }
 
-function ProductDetail({ product, isFavorite, onFavorite }: ProductDetailProps) {
+function ProductDetail({ product, isFavorite, onFavorite, onEdit, onDelete }: ProductDetailProps) {
   const imageSrc =
     product.thumbnail ||
     product.images?.[0] ||
@@ -87,6 +89,19 @@ function ProductDetail({ product, isFavorite, onFavorite }: ProductDetailProps) 
             />
             {isFavorite ? "Favorited" : "Add to Favorites"}
           </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {onEdit ? (
+            <Button size="lg" variant="outline" onClick={onEdit}>
+              Edit
+            </Button>
+          ) : null}
+          {onDelete ? (
+            <Button size="lg" variant="destructive" onClick={onDelete}>
+              Delete
+            </Button>
+          ) : null}
         </div>
       </div>
     </div>

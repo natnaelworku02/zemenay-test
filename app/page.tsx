@@ -172,7 +172,16 @@ export default function Home() {
           onMinPriceChange={setMinPrice}
           onMaxPriceChange={setMaxPrice}
           actions={
-            <Button onClick={() => setCreateOpen(true)} className="w-full sm:w-auto">
+            <Button
+              onClick={() => {
+                if (!user) {
+                  window.location.href = "/login"
+                  return
+                }
+                setCreateOpen(true)
+              }}
+              className="w-full sm:w-auto"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add product
             </Button>
