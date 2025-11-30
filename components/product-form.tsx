@@ -117,6 +117,7 @@ function ProductForm({
           <input
             required
             type="number"
+            step="0.01"
             value={values.price}
             onChange={(e) => handleChange("price", Number(e.target.value))}
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
