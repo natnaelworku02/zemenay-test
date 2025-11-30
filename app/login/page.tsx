@@ -37,10 +37,23 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim() || !password.trim()) return
-    if (mode === "signup" && (!name.trim() || password !== confirm)) {
-      toast.error("Please fill all fields and match passwords")
+    if (!email.trim() || !password.trim()) {
+      toast.error("Email and password are required")
       return
+    }
+    if (mode === "signup") {
+      if (!name.trim()) {
+        toast.error("Name is required")
+        return
+      }
+      if (password !== confirm) {
+        toast.error("Passwords do not match")
+        return
+      }
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters")
+        return
+      }
     }
 
     setLoading(true)

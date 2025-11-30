@@ -5,6 +5,7 @@ import { useState } from "react"
 
 import type { Product } from "@/types"
 import { Button } from "@/components/ui/button"
+import { isURL } from "@/lib/validation"
 
 type ProductFormValues = Omit<Product, "id"> & { id?: number }
 
@@ -36,6 +37,7 @@ function ProductForm({
     ...emptyState,
     ...initialData,
   })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleChange = (
     field: keyof ProductFormValues,
@@ -46,6 +48,15 @@ function ProductForm({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
+    const nextErrors: Record<string, string> = {}
+    if (!values.title.trim()) nextErrors.title = "Title is required"
+    if (values.price < 0) nextErrors.price = "Price must be at least 0"
+    if (values.stock < 0) nextErrors.stock = "Stock must be at least 0"
+    if (values.rating && (values.rating < 0 || values.rating > 5)) nextErrors.rating = "Rating must be 0-5"
+    if (values.thumbnail && !isURL(values.thumbnail)) nextErrors.thumbnail = "Thumbnail must be a valid URL"
+
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) return
     onSubmit(values)
   }
 
@@ -60,6 +71,7 @@ function ProductForm({
             onChange={(e) => handleChange("title", e.target.value)}
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
           />
+          {errors.title ? <span className="text-xs text-destructive">{errors.title}</span> : null}
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
           Brand
@@ -85,6 +97,7 @@ function ProductForm({
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             placeholder="https://images..."
           />
+          {errors.thumbnail ? <span className="text-xs text-destructive">{errors.thumbnail}</span> : null}
         </label>
       </div>
 
@@ -109,6 +122,7 @@ function ProductForm({
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             min={0}
           />
+          {errors.price ? <span className="text-xs text-destructive">{errors.price}</span> : null}
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
           Stock
@@ -120,6 +134,7 @@ function ProductForm({
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             min={0}
           />
+          {errors.stock ? <span className="text-xs text-destructive">{errors.stock}</span> : null}
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
           Rating
@@ -132,6 +147,7 @@ function ProductForm({
             min={0}
             max={5}
           />
+          {errors.rating ? <span className="text-xs text-destructive">{errors.rating}</span> : null}
         </label>
       </div>
 

@@ -91,14 +91,14 @@ function ProductDetail({ product, isFavorite, onFavorite, onEdit, onDelete }: Pr
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 justify-between">
           {onEdit ? (
-            <Button size="lg" variant="outline" onClick={onEdit}>
+            <Button size="lg" variant="outline" className="flex-1 min-w-[140px]" onClick={onEdit}>
               Edit
             </Button>
           ) : null}
           {onDelete ? (
-            <Button size="lg" variant="destructive" onClick={onDelete}>
+            <Button size="lg" variant="destructive" className="flex-1 min-w-[140px]" onClick={onDelete}>
               Delete
             </Button>
           ) : null}
