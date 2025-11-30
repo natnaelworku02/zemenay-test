@@ -99,7 +99,9 @@ export default function Home() {
       dispatch(addProduct(res.data))
       toast.success("Product created")
       setCreateOpen(false)
-    } catch {
+    } catch (err) {
+      const message = getErrorMessage(err)
+      toast.error(`Create failed: ${message}`)
       // Fallback to local add so the flow still works if the API rejects
       const newLocal: Product = {
         id: Date.now(),
@@ -226,4 +228,12 @@ export default function Home() {
 
     </div>
   )
+}
+
+function getErrorMessage(err: unknown) {
+  if (axios.isAxiosError(err)) {
+    return err.response?.data?.message || err.message || "Network error"
+  }
+  if (err instanceof Error) return err.message
+  return "Unknown error"
 }

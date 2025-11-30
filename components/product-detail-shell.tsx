@@ -63,17 +63,17 @@ function ProductDetailShell({ product }: { product: Product }) {
             <DialogTitle>Edit product</DialogTitle>
             <DialogDescription>Updates this product using DummyJSON (mock-friendly).</DialogDescription>
           </DialogHeader>
-          <ProductForm
-            mode="edit"
-            initialData={current}
-            onSubmit={async (values) => {
-              // API edit is unreliable; simulate success and close
-              setCurrent({ ...current, ...values })
-              toast.success("Product updated")
-              setEditing(false)
-            }}
-            onCancel={() => setEditing(false)}
-          />
+            <ProductForm
+              mode="edit"
+              initialData={current}
+              onSubmit={async (values) => {
+                // Simulate success; API edits are unreliable
+                setCurrent({ ...current, ...values })
+                toast.success("Product updated")
+                setEditing(false)
+              }}
+              onCancel={() => setEditing(false)}
+            />
         </DialogContent>
       </Dialog>
 
@@ -90,7 +90,7 @@ function ProductDetailShell({ product }: { product: Product }) {
             <Button
               variant="destructive"
               onClick={async () => {
-                // Simulate delete success
+                // Simulate success; API deletes are unreliable
                 toast.success("Product deleted")
                 setDeleting(false)
                 router.push("/")
