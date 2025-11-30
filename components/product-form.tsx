@@ -50,9 +50,18 @@ function ProductForm({
     e.preventDefault()
     const nextErrors: Record<string, string> = {}
     if (!values.title.trim()) nextErrors.title = "Title is required"
-    if (values.price < 0) nextErrors.price = "Price must be at least 0"
-    if (values.stock < 0) nextErrors.stock = "Stock must be at least 0"
-    if (values.rating && (values.rating < 0 || values.rating > 5)) nextErrors.rating = "Rating must be 0-5"
+    if (!values.description?.trim()) nextErrors.description = "Description is required"
+    if (!values.category?.trim()) nextErrors.category = "Category is required"
+    if (Number.isNaN(values.price) || values.price === null || values.price === undefined) {
+      nextErrors.price = "Price is required"
+    } else if (values.price < 0) nextErrors.price = "Price must be at least 0"
+    if (Number.isNaN(values.stock) || values.stock === null || values.stock === undefined) {
+      nextErrors.stock = "Stock is required"
+    } else if (values.stock < 0) nextErrors.stock = "Stock must be at least 0"
+    if (values.rating !== undefined && values.rating !== null) {
+      if (Number.isNaN(values.rating)) nextErrors.rating = "Rating must be a number"
+      else if (values.rating < 0 || values.rating > 5) nextErrors.rating = "Rating must be 0-5"
+    }
     if (values.thumbnail && !isURL(values.thumbnail)) nextErrors.thumbnail = "Thumbnail must be a valid URL"
 
     setErrors(nextErrors)
@@ -88,6 +97,7 @@ function ProductForm({
             onChange={(e) => handleChange("category", e.target.value)}
             className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
           />
+          {errors.category ? <span className="text-xs text-destructive">{errors.category}</span> : null}
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
           Thumbnail URL
@@ -109,7 +119,9 @@ function ProductForm({
           onChange={(e) => handleChange("description", e.target.value)}
           className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
         />
+        {errors.description ? <span className="text-xs text-destructive">{errors.description}</span> : null}
       </label>
+      {errors.description ? <span className="text-xs text-destructive">{errors.description}</span> : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <label className="flex flex-col gap-2 text-sm font-medium">

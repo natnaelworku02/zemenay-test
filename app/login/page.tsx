@@ -41,6 +41,14 @@ export default function LoginPage() {
       toast.error("Email and password are required")
       return
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid email")
+      return
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters")
+      return
+    }
     if (mode === "signup") {
       if (!name.trim()) {
         toast.error("Name is required")
@@ -48,10 +56,6 @@ export default function LoginPage() {
       }
       if (password !== confirm) {
         toast.error("Passwords do not match")
-        return
-      }
-      if (password.length < 6) {
-        toast.error("Password must be at least 6 characters")
         return
       }
     }
