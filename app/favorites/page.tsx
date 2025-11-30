@@ -4,16 +4,17 @@ import ProductGrid from "@/components/product-grid"
 import PageHero from "@/components/page-hero"
 import { toggleFavorite } from "@/features/favoritesSlice"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import type { RootState } from "@/store/store"
 import type { Product } from "@/types"
 
 export default function FavoritesPage() {
   const dispatch = useAppDispatch()
-  const favorites = useAppSelector((s) => s.favorites.items)
+  const favorites = useAppSelector((s: RootState) => s.favorites.items)
+  const user = useAppSelector((s) => s.auth.user)
   const categories = Array.from(new Set(favorites.map((p) => p.category || "Other")))
-  const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
 
   const handleFavorite = (product: Product) => {
-    if (!isAuthenticated) {
+    if (!user) {
       window.location.href = "/login"
       return
     }

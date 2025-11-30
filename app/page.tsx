@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import toast from "react-hot-toast"
 
 import PageHero from "@/components/page-hero"
@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { addProduct, fetchProducts, removeProduct, updateProduct } from "@/features/productsSlice"
+import { addProduct, fetchProducts } from "@/features/productsSlice"
 import { toggleFavorite } from "@/features/favoritesSlice"
 import axios from "@/lib/axios"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
@@ -27,7 +27,7 @@ export default function Home() {
   const dispatch = useAppDispatch()
   const { items, loading, error, total, skip, limit } = useAppSelector((s) => s.products)
   const favorites = useAppSelector((s: RootState) => s.favorites.items)
-  const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
+  const user = useAppSelector((s) => s.auth.user)
 
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
@@ -35,8 +35,6 @@ export default function Home() {
   const [minPrice, setMinPrice] = useState<number | undefined>()
   const [maxPrice, setMaxPrice] = useState<number | undefined>()
   const [createOpen, setCreateOpen] = useState(false)
-  const [editing, setEditing] = useState<Product | null>(null)
-  const [deleting, setDeleting] = useState<Product | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -83,7 +81,7 @@ export default function Home() {
   const hasMore = (skip + limit) < (total || 0)
 
   const handleFavorite = (product: Product) => {
-    if (!isAuthenticated) {
+    if (!user) {
       window.location.href = "/login"
       return
     }
@@ -93,7 +91,7 @@ export default function Home() {
   }
 
   const handleCreate = async (values: Omit<Product, "id">) => {
-    if (!isAuthenticated) {
+    if (!user) {
       window.location.href = "/login"
       return
     }
@@ -104,40 +102,6 @@ export default function Home() {
       setCreateOpen(false)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to create product"
-      toast.error(message)
-    }
-  }
-
-  const handleUpdate = async (values: Omit<Product, "id"> & { id?: number }) => {
-    if (!editing?.id) return
-    if (!isAuthenticated) {
-      window.location.href = "/login"
-      return
-    }
-    try {
-      const res = await axios.put<Product>(`/products/${editing.id}`, values)
-      dispatch(updateProduct(res.data))
-      toast.success("Product updated")
-      setEditing(null)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to update product"
-      toast.error(message)
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!deleting?.id) return
-    if (!isAuthenticated) {
-      window.location.href = "/login"
-      return
-    }
-    try {
-      await axios.delete(`/products/${deleting.id}`)
-      dispatch(removeProduct(deleting.id))
-      toast.success("Product deleted")
-      setDeleting(null)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to delete product"
       toast.error(message)
     }
   }
@@ -225,8 +189,6 @@ export default function Home() {
           products={filteredProducts}
           favorites={favorites}
           onFavorite={handleFavorite}
-          onEdit={setEditing}
-          onDelete={setDeleting}
           loading={loading}
           emptyText="No products match this search. Try a different keyword or reset filters."
         />
@@ -250,43 +212,6 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(editing)} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit product</DialogTitle>
-            <DialogDescription>Updates the DummyJSON product and refreshes the list item.</DialogDescription>
-          </DialogHeader>
-          {editing ? (
-            <ProductForm
-              mode="edit"
-              initialData={editing}
-              onSubmit={handleUpdate}
-              onCancel={() => setEditing(null)}
-            />
-          ) : null}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={Boolean(deleting)} onOpenChange={(open) => !open && setDeleting(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete product?</DialogTitle>
-            <DialogDescription className="space-y-2">
-              <p className="font-medium text-foreground">{deleting?.title}</p>
-              <p>This calls DummyJSON delete and removes it from the local list.</p>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex items-center justify-end gap-2">
-            <Button variant="ghost" onClick={() => setDeleting(null)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

@@ -3,31 +3,43 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { LogIn, UserPlus } from "lucide-react"
+import toast from "react-hot-toast"
 
 import { Button } from "@/components/ui/button"
-import { login } from "@/features/authSlice"
+import { login, register } from "@/features/authSlice"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 
 export default function LoginPage() {
   const dispatch = useAppDispatch()
   const router = useRouter()
-  const isAuthenticated = useAppSelector((s) => Boolean(s.auth.accessToken))
-  const authLoading = useAppSelector((s) => s.auth.loading)
-  const authError = useAppSelector((s) => s.auth.error)
+  const user = useAppSelector((s) => s.auth.user)
+  const error = useAppSelector((s) => s.auth.error)
+
+  const [mode, setMode] = useState<"login" | "signup">("login")
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [mode, setMode] = useState<"login" | "signup">("login")
+  const [confirm, setConfirm] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password.trim()) return
+    if (mode === "signup" && (!name.trim() || password !== confirm)) {
+      toast.error("Please fill all fields and match passwords")
+      return
+    }
 
-    // DummyJSON auth uses username (not email) and password
-    dispatch(login({ username: email, password }))
-    router.push("/")
+    setLoading(true)
+    if (mode === "signup") {
+      dispatch(register({ name, email, password }))
+    } else {
+      dispatch(login({ email, password }))
+    }
+    setLoading(false)
   }
 
-  if (isAuthenticated) {
+  if (user) {
     router.push("/")
     return null
   }
@@ -36,30 +48,43 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
       <div className="mx-auto flex max-w-md flex-col gap-6 px-4 py-14 sm:px-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Welcome back</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            {mode === "login" ? "Welcome back" : "Join us"}
+          </p>
           <h1 className="text-3xl font-semibold">
             {mode === "login" ? "Login to continue" : "Create an account"}
           </h1>
         </div>
+
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-white/90 p-6 shadow-sm backdrop-blur dark:bg-slate-900 dark:border-white/10"
         >
+          {mode === "signup" && (
+            <label className="flex flex-col gap-2 text-sm font-medium">
+              Name
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Jane Doe"
+                className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
+                required
+              />
+            </label>
+          )}
+
           <label className="flex flex-col gap-2 text-sm font-medium">
-            Username
+            Email
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="emilys"
-              required
+              placeholder="you@example.com"
               className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
+              required
+              type="email"
             />
           </label>
-          {mode === "signup" && (
-            <p className="text-sm text-muted-foreground">
-              Signup is a mock experience; DummyJSON only supports login with existing users.
-            </p>
-          )}
+
           <label className="flex flex-col gap-2 text-sm font-medium">
             Password
             <input
@@ -71,21 +96,37 @@ export default function LoginPage() {
               className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             />
           </label>
-          {authError ? <p className="text-sm text-destructive">{authError}</p> : null}
 
-          <Button type="submit" className="w-full" disabled={authLoading}>
+          {mode === "signup" && (
+            <label className="flex flex-col gap-2 text-sm font-medium">
+              Confirm password
+              <input
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="••••••••"
+                type="password"
+                required
+                className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
+              />
+            </label>
+          )}
+
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+          <Button type="submit" className="w-full" disabled={loading}>
             {mode === "login" ? (
               <>
                 <LogIn className="mr-2 h-4 w-4" />
-                {authLoading ? "Signing in..." : "Login"}
+                {loading ? "Signing in..." : "Login"}
               </>
             ) : (
               <>
                 <UserPlus className="mr-2 h-4 w-4" />
-                Sign up
+                {loading ? "Creating..." : "Sign up"}
               </>
             )}
           </Button>
+
           <button
             type="button"
             className="text-sm text-primary underline-offset-4 hover:underline"

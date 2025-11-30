@@ -13,7 +13,6 @@ function Navbar() {
   const dispatch = useAppDispatch()
   const favorites = useAppSelector((s) => s.favorites.items)
   const theme = useAppSelector((s) => s.ui.theme)
-  const isAuthenticated = useAppSelector((s) => s.auth.accessToken)
   const user = useAppSelector((s) => s.auth.user)
 
   const toggle = () => dispatch(toggleTheme())
@@ -47,13 +46,13 @@ function Navbar() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"} mode</span>
           </button>
-          {isAuthenticated ? (
+          {user ? (
             <button
               onClick={handleLogout}
               className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-foreground transition hover:bg-secondary"
             >
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">{user?.name || "User"}</span>
+              <span className="hidden sm:inline">Hi, {user.name}</span>
             </button>
           ) : (
             <Link
