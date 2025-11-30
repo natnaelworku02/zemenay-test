@@ -20,12 +20,13 @@ import { addProduct, fetchProducts, removeProduct, updateProduct } from "@/featu
 import { toggleFavorite } from "@/features/favoritesSlice"
 import axios from "@/lib/axios"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import type { RootState } from "@/store/store"
 import type { Product } from "@/types"
 
 export default function Home() {
   const dispatch = useAppDispatch()
   const { items, loading, error, total, skip, limit } = useAppSelector((s) => s.products)
-  const favorites = useAppSelector((s) => s.favorites.items)
+  const favorites = useAppSelector((s: RootState) => s.favorites.items)
   const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
 
   const [search, setSearch] = useState("")
@@ -36,7 +37,6 @@ export default function Home() {
   const [deleting, setDeleting] = useState<Product | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  // fetch products on mount and whenever search changes (debounced)
   useEffect(() => {
     const id = setTimeout(() => {
       dispatch(
@@ -51,7 +51,6 @@ export default function Home() {
     return () => clearTimeout(id)
   }, [dispatch, limit, search, category])
 
-  // fetch categories once
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -87,7 +86,7 @@ export default function Home() {
       return
     }
     dispatch(toggleFavorite(product))
-    const isFav = favorites.some((f) => f.id === product.id)
+    const isFav = favorites.some((f: Product) => f.id === product.id)
     toast.success(isFav ? "Removed from favorites" : "Added to favorites")
   }
 
@@ -161,7 +160,7 @@ export default function Home() {
   }, [loadMoreObserver])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-white text-slate-950 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-white">
+    <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-white text-slate-950 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:px-8">
         <PageHero favoritesCount={favorites.length} categoriesCount={categories.length - 1} />
 
@@ -195,6 +194,7 @@ export default function Home() {
           onFavorite={handleFavorite}
           onEdit={setEditing}
           onDelete={setDeleting}
+          loading={loading}
           emptyText="No products match this search. Try a different keyword or reset filters."
         />
 
