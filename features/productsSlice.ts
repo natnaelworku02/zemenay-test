@@ -63,10 +63,20 @@ const initialState: ProductsState = {
   category: 'all',
 }
 
+const PRODUCTS_CACHE_KEY = 'products:cache'
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
+    hydrateProducts(state, action: PayloadAction<Partial<ProductsState>>) {
+      state.items = action.payload.items ?? state.items
+      state.total = action.payload.total ?? state.total
+      state.skip = action.payload.skip ?? state.skip
+      state.limit = action.payload.limit ?? state.limit
+      state.query = action.payload.query ?? state.query
+      state.category = action.payload.category ?? state.category
+    },
     addProductLocal(state, action: PayloadAction<Product>) {
       state.items.unshift(action.payload)
     },
@@ -95,6 +105,23 @@ const productsSlice = createSlice({
       s.limit = limit
       s.query = query
       s.category = category
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(
+            PRODUCTS_CACHE_KEY,
+            JSON.stringify({
+              items: s.items,
+              total: s.total,
+              skip: s.skip,
+              limit: s.limit,
+              query: s.query,
+              category: s.category,
+            })
+          )
+        } catch {
+          // ignore cache write errors
+        }
+      }
     })
     builder.addCase(fetchProducts.rejected, (s, action) => {
       s.loading = false
@@ -113,5 +140,5 @@ const productsSlice = createSlice({
   },
 })
 
-export const { addProductLocal, updateProductLocal, removeProductLocal } = productsSlice.actions
+export const { hydrateProducts, addProductLocal, updateProductLocal, removeProductLocal } = productsSlice.actions
 export default productsSlice.reducer

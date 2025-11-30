@@ -11,6 +11,9 @@ const favoritesSlice = createSlice({
   name: 'favorites',
   initialState,
   reducers: {
+    hydrateFavorites(state, action: PayloadAction<Product[]>) {
+      state.items = action.payload
+    },
     toggleFavorite(state, action: PayloadAction<Product>) {
       const exists = state.items.find((p) => p.id === action.payload.id)
       if (exists) {
@@ -25,5 +28,5 @@ const favoritesSlice = createSlice({
   },
 })
 
-export const { toggleFavorite, clearFavorites } = favoritesSlice.actions
+export const { hydrateFavorites, toggleFavorite, clearFavorites } = favoritesSlice.actions
 export default favoritesSlice.reducer

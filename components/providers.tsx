@@ -8,6 +8,8 @@ import { store } from "@/store/store"
 import type { RootState } from "@/store/store"
 import { hydrateAuth } from "@/features/uiSlice"
 import { hydrate as hydrateMockAuth } from "@/features/authSlice"
+import { hydrateFavorites } from "@/features/favoritesSlice"
+import { hydrateProducts } from "@/features/productsSlice"
 
 function Providers({ children }: { children: ReactNode }) {
   return (
@@ -21,6 +23,8 @@ function Providers({ children }: { children: ReactNode }) {
 
 function StateHydrator() {
   const theme = useSelector((s: RootState) => s.ui.theme)
+  const favorites = useSelector((s: RootState) => s.favorites.items)
+  const products = useSelector((s: RootState) => s.products.items)
   const dispatch = useDispatch()
 
   React.useEffect(() => {
@@ -30,6 +34,26 @@ function StateHydrator() {
     dispatch(hydrateAuth({ user: savedUser, theme: savedTheme }))
 
     dispatch(hydrateMockAuth())
+
+    try {
+      const favRaw = localStorage.getItem("favorites:items")
+      if (favRaw) {
+        const favParsed = JSON.parse(favRaw)
+        dispatch(hydrateFavorites(Array.isArray(favParsed) ? favParsed : []))
+      }
+    } catch {
+      /* ignore */
+    }
+
+    try {
+      const prodRaw = localStorage.getItem("products:cache")
+      if (prodRaw) {
+        const prodParsed = JSON.parse(prodRaw)
+        dispatch(hydrateProducts(prodParsed))
+      }
+    } catch {
+      /* ignore */
+    }
   }, [dispatch])
 
   React.useEffect(() => {
@@ -49,6 +73,22 @@ function StateHydrator() {
       localStorage.removeItem("ui:user")
     }
   }, [user])
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("favorites:items", JSON.stringify(favorites))
+    } catch {
+      /* ignore */
+    }
+  }, [favorites])
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("products:cache", JSON.stringify({ items: products }))
+    } catch {
+      /* ignore */
+    }
+  }, [products])
 
   return null
 }
