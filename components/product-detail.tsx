@@ -21,7 +21,7 @@ function ProductDetail({ product, isFavorite, onFavorite }: ProductDetailProps) 
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-muted to-secondary/60">
+      <div className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-muted to-secondary/60 dark:from-slate-800 dark:to-slate-900 dark:border-white/10">
         <Image
           src={imageSrc}
           alt={product.title}
@@ -37,7 +37,7 @@ function ProductDetail({ product, isFavorite, onFavorite }: ProductDetailProps) 
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-6 rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm backdrop-blur">
+      <div className="flex flex-col gap-6 rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm backdrop-blur dark:bg-slate-900 dark:border-white/10">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">

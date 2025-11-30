@@ -22,7 +22,7 @@ function ProductGrid({
 }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border/80 bg-white p-10 text-center text-muted-foreground">
+      <div className="rounded-2xl border border-dashed border-border/80 bg-white p-10 text-center text-muted-foreground dark:bg-slate-900">
         {emptyText || "No products to show right now."}
       </div>
     )

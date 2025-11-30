@@ -58,7 +58,7 @@ function ProductForm({
             required
             value={values.title}
             onChange={(e) => handleChange("title", e.target.value)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
@@ -66,7 +66,7 @@ function ProductForm({
           <input
             value={values.brand}
             onChange={(e) => handleChange("brand", e.target.value)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
@@ -74,7 +74,7 @@ function ProductForm({
           <input
             value={values.category}
             onChange={(e) => handleChange("category", e.target.value)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm font-medium">
@@ -82,7 +82,7 @@ function ProductForm({
           <input
             value={values.thumbnail || ""}
             onChange={(e) => handleChange("thumbnail", e.target.value)}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             placeholder="https://images..."
           />
         </label>
@@ -94,7 +94,7 @@ function ProductForm({
           rows={3}
           value={values.description}
           onChange={(e) => handleChange("description", e.target.value)}
-          className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+          className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
         />
       </label>
 
@@ -106,7 +106,7 @@ function ProductForm({
             type="number"
             value={values.price}
             onChange={(e) => handleChange("price", Number(e.target.value))}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             min={0}
           />
         </label>
@@ -117,7 +117,7 @@ function ProductForm({
             type="number"
             value={values.stock}
             onChange={(e) => handleChange("stock", Number(e.target.value))}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             min={0}
           />
         </label>
@@ -128,7 +128,7 @@ function ProductForm({
             step="0.1"
             value={values.rating ?? 0}
             onChange={(e) => handleChange("rating", Number(e.target.value))}
-            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50"
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             min={0}
             max={5}
           />

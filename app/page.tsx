@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Plus, Trash2 } from "lucide-react"
 import toast from "react-hot-toast"
 
@@ -26,34 +26,66 @@ export default function Home() {
   const dispatch = useAppDispatch()
   const { items, loading, error, total, skip, limit } = useAppSelector((s) => s.products)
   const favorites = useAppSelector((s) => s.favorites.items)
+  const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
 
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
+  const [categories, setCategories] = useState<string[]>(["all"])
   const [createOpen, setCreateOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
   const [deleting, setDeleting] = useState<Product | null>(null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   // fetch products on mount and whenever search changes (debounced)
   useEffect(() => {
     const id = setTimeout(() => {
-      dispatch(fetchProducts({ limit, skip: 0, q: search || undefined }))
+      dispatch(
+        fetchProducts({
+          limit,
+          skip: 0,
+          q: search || undefined,
+          category: category !== "all" ? category : undefined,
+        })
+      )
     }, 350)
     return () => clearTimeout(id)
-  }, [dispatch, limit, search])
+  }, [dispatch, limit, search, category])
 
-  const categories = useMemo(() => {
-    const unique = Array.from(new Set(items.map((p) => p.category || "Other")))
-    return ["all", ...unique]
-  }, [items])
-
-  const filteredProducts = useMemo(() => {
-    if (category === "all") return items
-    return items.filter((p) => (p.category || "") === category)
-  }, [category, items])
+  // fetch categories once
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await axios.get("/products/categories")
+        const raw = Array.isArray(res.data) ? res.data : []
+        const parsed = Array.from(
+          new Set(
+            raw
+              .map((c: unknown) => {
+                if (typeof c === "string") return c
+                if (c && typeof c === "object") {
+                  const maybe = c as { slug?: string; name?: string }
+                  return maybe.slug || maybe.name || ""
+                }
+                return ""
+              })
+              .filter(Boolean)
+          )
+        )
+        setCategories(["all", ...parsed])
+      } catch {
+        setCategories(["all"])
+      }
+    }
+    loadCategories()
+  }, [])
 
   const hasMore = (skip + limit) < (total || 0)
 
   const handleFavorite = (product: Product) => {
+    if (!isAuthenticated) {
+      window.location.href = "/login"
+      return
+    }
     dispatch(toggleFavorite(product))
     const isFav = favorites.some((f) => f.id === product.id)
     toast.success(isFav ? "Removed from favorites" : "Added to favorites")
@@ -97,18 +129,39 @@ export default function Home() {
     }
   }
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
+    if (loading || !hasMore) return
     dispatch(
       fetchProducts({
         limit,
         skip: items.length,
         q: search || undefined,
+        category: category !== "all" ? category : undefined,
       })
     )
-  }
+  }, [category, dispatch, hasMore, items.length, limit, loading, search])
+
+  const loadMoreObserver = useCallback(() => {
+    loadMore()
+  }, [loadMore])
+
+  useEffect(() => {
+    const node = sentinelRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreObserver()
+        }
+      },
+      { threshold: 1 }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [loadMoreObserver])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-white text-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-white text-slate-950 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:px-8">
         <PageHero favoritesCount={favorites.length} categoriesCount={categories.length - 1} />
 
@@ -133,7 +186,11 @@ export default function Home() {
         ) : null}
 
         <ProductGrid
-          products={filteredProducts}
+          products={
+            category === "all"
+              ? items
+              : items.filter((p) => (p.category || "").toLowerCase() === category.toLowerCase())
+          }
           favorites={favorites}
           onFavorite={handleFavorite}
           onEdit={setEditing}
@@ -141,16 +198,8 @@ export default function Home() {
           emptyText="No products match this search. Try a different keyword or reset filters."
         />
 
-        <div className="flex items-center justify-center">
-          {hasMore ? (
-            <Button onClick={loadMore} disabled={loading} variant="secondary" className="min-w-[160px]">
-              {loading ? "Loading..." : "Load more"}
-            </Button>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              {loading ? "Loading..." : "You’re all caught up."}
-            </p>
-          )}
+        <div ref={sentinelRef} className="flex items-center justify-center py-4 text-sm text-muted-foreground">
+          {loading ? "Loading..." : hasMore ? "Scroll to load more" : "You’re all caught up."}
         </div>
       </div>
 

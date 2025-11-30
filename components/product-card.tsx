@@ -29,8 +29,11 @@ function ProductCard({
     "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80"
 
   return (
-    <div className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <Link href={`/product/${product.id}`} className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-muted to-secondary/60">
+    <div className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-slate-900">
+      <Link
+        href={`/product/${product.id}`}
+        className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-muted to-secondary/60 dark:from-slate-800 dark:to-slate-900"
+      >
         <Image
           src={imageSrc}
           alt={product.title}
@@ -39,7 +42,7 @@ function ProductCard({
           className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           priority
         />
-        <div className="absolute left-3 top-3 rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+        <div className="absolute left-3 top-3 rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur dark:bg-slate-900/80">
           {product.category || "Uncategorized"}
         </div>
         {product.discountPercentage ? (

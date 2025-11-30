@@ -11,7 +11,7 @@ type PageHeroProps = {
 
 function PageHero({ favoritesCount, categoriesCount }: PageHeroProps) {
   return (
-    <header className="rounded-3xl border border-border/70 bg-white/90 p-8 shadow-sm backdrop-blur">
+    <header className="rounded-3xl border border-border/70 bg-white/90 p-8 shadow-sm backdrop-blur dark:bg-slate-900 dark:border-white/10">
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
           <ShoppingBag className="h-6 w-6" />

@@ -9,12 +9,19 @@ function ProductDetailShell({ product }: { product: Product }) {
   const dispatch = useAppDispatch()
   const favorites = useAppSelector((s) => s.favorites.items)
   const isFavorite = favorites.some((f) => f.id === product.id)
+  const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
 
   return (
     <ProductDetail
       product={product}
       isFavorite={isFavorite}
-      onFavorite={(p) => dispatch(toggleFavorite(p))}
+      onFavorite={(p) => {
+        if (!isAuthenticated) {
+          window.location.href = "/login"
+          return
+        }
+        dispatch(toggleFavorite(p))
+      }}
     />
   )
 }

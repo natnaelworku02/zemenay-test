@@ -28,14 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50`}
       >
         <Providers>
-          <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-white text-slate-950">
-            <Navbar />
-            <main className="pb-14">{children}</main>
-            <Footer />
-          </div>
+          <Navbar />
+          <main className="pb-14">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

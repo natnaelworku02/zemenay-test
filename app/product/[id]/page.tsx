@@ -23,7 +23,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
   const product = await getProduct(params.id)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-white text-slate-950">
+    <div className="min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10 sm:px-8">
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Product detail</p>
