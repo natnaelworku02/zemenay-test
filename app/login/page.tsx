@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation"
 import { LogIn, UserPlus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { login, register } from "@/features/uiSlice"
+import { login } from "@/features/authSlice"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 
 export default function LoginPage() {
   const dispatch = useAppDispatch()
   const router = useRouter()
-  const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
-  const [name, setName] = useState("")
+  const isAuthenticated = useAppSelector((s) => Boolean(s.auth.accessToken))
+  const authLoading = useAppSelector((s) => s.auth.loading)
+  const authError = useAppSelector((s) => s.auth.error)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [mode, setMode] = useState<"login" | "signup">("login")
@@ -21,17 +22,8 @@ export default function LoginPage() {
     e.preventDefault()
     if (!email.trim() || !password.trim()) return
 
-    if (mode === "signup") {
-      if (!name.trim()) return
-      dispatch(register({ name, email }))
-      localStorage.setItem(`auth:${email}`, JSON.stringify({ name, email, password }))
-    } else {
-      const stored = localStorage.getItem(`auth:${email}`)
-      if (!stored) return
-      const user = JSON.parse(stored) as { name: string; email: string; password: string }
-      if (user.password !== password) return
-      dispatch(login({ name: user.name, email }))
-    }
+    // DummyJSON auth uses username (not email) and password
+    dispatch(login({ username: email, password }))
     router.push("/")
   }
 
@@ -54,27 +46,19 @@ export default function LoginPage() {
           className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-white/90 p-6 shadow-sm backdrop-blur dark:bg-slate-900 dark:border-white/10"
         >
           <label className="flex flex-col gap-2 text-sm font-medium">
-            Email
+            Username
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              type="email"
+              placeholder="emilys"
               required
               className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             />
           </label>
           {mode === "signup" && (
-            <label className="flex flex-col gap-2 text-sm font-medium">
-              Name
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Jane Doe"
-                required={mode === "signup"}
-                className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
-              />
-            </label>
+            <p className="text-sm text-muted-foreground">
+              Signup is a mock experience; DummyJSON only supports login with existing users.
+            </p>
           )}
           <label className="flex flex-col gap-2 text-sm font-medium">
             Password
@@ -87,11 +71,13 @@ export default function LoginPage() {
               className="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             />
           </label>
-          <Button type="submit" className="w-full">
+          {authError ? <p className="text-sm text-destructive">{authError}</p> : null}
+
+          <Button type="submit" className="w-full" disabled={authLoading}>
             {mode === "login" ? (
               <>
                 <LogIn className="mr-2 h-4 w-4" />
-                Login
+                {authLoading ? "Signing in..." : "Login"}
               </>
             ) : (
               <>

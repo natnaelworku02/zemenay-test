@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast"
 import { store } from "@/store/store"
 import type { RootState } from "@/store/store"
 import { hydrateAuth } from "@/features/uiSlice"
+import { hydrateAuth as hydrateAuthTokens } from "@/features/authSlice"
 
 function Providers({ children }: { children: ReactNode }) {
   return (
@@ -27,6 +28,18 @@ function StateHydrator() {
     const savedUserRaw = localStorage.getItem("ui:user")
     const savedUser = savedUserRaw ? (JSON.parse(savedUserRaw) as { name: string; email: string }) : undefined
     dispatch(hydrateAuth({ user: savedUser, theme: savedTheme }))
+
+    const token = localStorage.getItem("auth:accessToken") || undefined
+    const refreshToken = localStorage.getItem("auth:refreshToken") || undefined
+    const authUserRaw = localStorage.getItem("auth:user")
+    const authUser = authUserRaw ? (JSON.parse(authUserRaw) as RootState["auth"]["user"]) : undefined
+    dispatch(
+      hydrateAuthTokens({
+        accessToken: token,
+        refreshToken,
+        user: authUser,
+      })
+    )
   }, [dispatch])
 
   React.useEffect(() => {

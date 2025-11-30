@@ -6,17 +6,21 @@ import { Heart, LogIn, LogOut, Moon, ShoppingBag, Sun } from "lucide-react"
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { cn } from "@/lib/utils"
-import { logout, toggleTheme } from "@/features/uiSlice"
+import { logout as uiLogout, toggleTheme } from "@/features/uiSlice"
+import { logout as authLogout } from "@/features/authSlice"
 
 function Navbar() {
   const dispatch = useAppDispatch()
   const favorites = useAppSelector((s) => s.favorites.items)
   const theme = useAppSelector((s) => s.ui.theme)
-  const isAuthenticated = useAppSelector((s) => s.ui.isAuthenticated)
-  const user = useAppSelector((s) => s.ui.user)
+  const isAuthenticated = useAppSelector((s) => s.auth.accessToken)
+  const user = useAppSelector((s) => s.auth.user)
 
   const toggle = () => dispatch(toggleTheme())
-  const handleLogout = () => dispatch(logout())
+  const handleLogout = () => {
+    dispatch(uiLogout())
+    dispatch(authLogout())
+  }
   return (
     <nav className="sticky top-0 z-30 border-b border-border/70 bg-white/90 backdrop-blur dark:bg-slate-900/90 dark:border-white/10">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-8">

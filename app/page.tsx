@@ -32,6 +32,8 @@ export default function Home() {
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
   const [categories, setCategories] = useState<string[]>(["all"])
+  const [minPrice, setMinPrice] = useState<number | undefined>()
+  const [maxPrice, setMaxPrice] = useState<number | undefined>()
   const [createOpen, setCreateOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
   const [deleting, setDeleting] = useState<Product | null>(null)
@@ -91,6 +93,10 @@ export default function Home() {
   }
 
   const handleCreate = async (values: Omit<Product, "id">) => {
+    if (!isAuthenticated) {
+      window.location.href = "/login"
+      return
+    }
     try {
       const res = await axios.post<Product>("/products/add", values)
       dispatch(addProduct(res.data))
@@ -104,6 +110,10 @@ export default function Home() {
 
   const handleUpdate = async (values: Omit<Product, "id"> & { id?: number }) => {
     if (!editing?.id) return
+    if (!isAuthenticated) {
+      window.location.href = "/login"
+      return
+    }
     try {
       const res = await axios.put<Product>(`/products/${editing.id}`, values)
       dispatch(updateProduct(res.data))
@@ -117,6 +127,10 @@ export default function Home() {
 
   const handleDelete = async () => {
     if (!deleting?.id) return
+    if (!isAuthenticated) {
+      window.location.href = "/login"
+      return
+    }
     try {
       await axios.delete(`/products/${deleting.id}`)
       dispatch(removeProduct(deleting.id))
@@ -144,6 +158,15 @@ export default function Home() {
     loadMore()
   }, [loadMore])
 
+  const filteredProducts = (category === "all"
+    ? items
+    : items.filter((p) => (p.category || "").toLowerCase() === category.toLowerCase())
+  ).filter((p) => {
+    const withinMin = typeof minPrice === "number" ? p.price >= minPrice : true
+    const withinMax = typeof maxPrice === "number" ? p.price <= maxPrice : true
+    return withinMin && withinMax
+  })
+
   useEffect(() => {
     const node = sentinelRef.current
     if (!node) return
@@ -167,9 +190,23 @@ export default function Home() {
         <ProductFilters
           search={search}
           onSearch={setSearch}
+          onSearchSubmit={() => {
+            dispatch(
+              fetchProducts({
+                limit,
+                skip: 0,
+                q: search || undefined,
+                category: category !== "all" ? category : undefined,
+              })
+            )
+          }}
           categories={categories}
           activeCategory={category}
           onCategoryChange={setCategory}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          onMinPriceChange={setMinPrice}
+          onMaxPriceChange={setMaxPrice}
           actions={
             <Button onClick={() => setCreateOpen(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
@@ -185,11 +222,7 @@ export default function Home() {
         ) : null}
 
         <ProductGrid
-          products={
-            category === "all"
-              ? items
-              : items.filter((p) => (p.category || "").toLowerCase() === category.toLowerCase())
-          }
+          products={filteredProducts}
           favorites={favorites}
           onFavorite={handleFavorite}
           onEdit={setEditing}
