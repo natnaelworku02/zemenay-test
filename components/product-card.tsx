@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { Heart, Pencil, Star, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -29,7 +30,7 @@ function ProductCard({
 
   return (
     <div className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-muted to-secondary/60">
+      <Link href={`/product/${product.id}`} className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-muted to-secondary/60">
         <Image
           src={imageSrc}
           alt={product.title}
@@ -46,7 +47,7 @@ function ProductCard({
             -{product.discountPercentage}%
           </div>
         ) : null}
-      </div>
+      </Link>
 
       <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
         <div className="flex items-start justify-between gap-2">
@@ -54,7 +55,9 @@ function ProductCard({
             <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
               {product.brand || "Brand"}
             </p>
-            <h3 className="text-lg font-semibold leading-tight">{product.title}</h3>
+            <Link href={`/product/${product.id}`} className="text-lg font-semibold leading-tight hover:underline">
+              {product.title}
+            </Link>
           </div>
           <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-600">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />

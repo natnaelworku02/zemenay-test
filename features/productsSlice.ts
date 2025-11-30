@@ -9,13 +9,24 @@ interface ProductsState {
   total?: number
   skip: number
   limit: number
+  query?: string
 }
 
 export const fetchProducts = createAsyncThunk(
   'products/fetch',
-  async ({ limit = 10, skip = 0 }: { limit?: number; skip?: number }) => {
-    const res = await axios.get(`/products?limit=${limit}&skip=${skip}`)
-    return res.data
+  async ({
+    limit = 10,
+    skip = 0,
+    q,
+  }: { limit?: number; skip?: number; q?: string }) => {
+    const params = new URLSearchParams()
+    params.set('limit', `${limit}`)
+    params.set('skip', `${skip}`)
+    if (q) params.set('q', q)
+
+    const endpoint = q ? `/products/search?${params.toString()}` : `/products?${params.toString()}`
+    const res = await axios.get(endpoint)
+    return { ...res.data, query: q }
   }
 )
 
@@ -26,6 +37,7 @@ const initialState: ProductsState = {
   total: 0,
   skip: 0,
   limit: 10,
+  query: undefined,
 }
 
 const productsSlice = createSlice({
@@ -50,13 +62,15 @@ const productsSlice = createSlice({
     })
     builder.addCase(fetchProducts.fulfilled, (s, action) => {
       s.loading = false
-      // append new results (supports pagination/scroll)
-      if (Array.isArray(action.payload.products)) {
-        s.items = s.items.concat(action.payload.products)
+      const { products, total, skip, limit, query } = action.payload
+      const isAppend = skip > 0 && s.query === query
+      if (Array.isArray(products)) {
+        s.items = isAppend ? s.items.concat(products) : products
       }
-      s.total = action.payload.total
-      s.skip = action.payload.skip
-      s.limit = action.payload.limit
+      s.total = total
+      s.skip = skip
+      s.limit = limit
+      s.query = query
     })
     builder.addCase(fetchProducts.rejected, (s, action) => {
       s.loading = false
