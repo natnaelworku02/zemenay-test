@@ -256,9 +256,9 @@ export default function Home() {
 }
 
 function getErrorMessage(err: unknown) {
-  if (axios.isAxiosError(err)) {
-    return err.response?.data?.message || err.message || "Network error"
-  }
+  const maybe = err as { response?: { data?: { message?: string } }; message?: string }
+  if (maybe?.response?.data?.message) return maybe.response.data.message
+  if (maybe?.message) return maybe.message
   if (err instanceof Error) return err.message
   return "Unknown error"
 }
