@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { addProduct, fetchProducts } from "@/features/productsSlice"
+import { addProductLocal, createProduct, fetchProducts } from "@/features/productsSlice"
 import { toggleFavorite } from "@/features/favoritesSlice"
 import axios from "@/lib/axios"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
@@ -95,8 +95,7 @@ export default function Home() {
       return
     }
     try {
-      const res = await axios.post<Product>("/products/add", values)
-      dispatch(addProduct(res.data))
+      await dispatch(createProduct(values)).unwrap()
       toast.success("Product created")
       setCreateOpen(false)
     } catch (err) {
@@ -107,7 +106,7 @@ export default function Home() {
         id: Date.now(),
         ...values,
       }
-      dispatch(addProduct(newLocal))
+      dispatch(addProductLocal(newLocal))
       toast.success("Created locally (API unavailable)")
       setCreateOpen(false)
     }
@@ -176,6 +175,13 @@ export default function Home() {
           maxPrice={maxPrice}
           onMinPriceChange={setMinPrice}
           onMaxPriceChange={setMaxPrice}
+          onReset={() => {
+            setSearch("")
+            setCategory("all")
+            setMinPrice(undefined)
+            setMaxPrice(undefined)
+            dispatch(fetchProducts({ limit, skip: 0 }))
+          }}
           actions={
             <Button
               onClick={() => {

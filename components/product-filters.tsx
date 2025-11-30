@@ -16,6 +16,7 @@ type ProductFiltersProps = {
   maxPrice: number | undefined
   onMinPriceChange: (v: number | undefined) => void
   onMaxPriceChange: (v: number | undefined) => void
+  onReset?: () => void
 }
 
 function ProductFilters({
@@ -30,6 +31,7 @@ function ProductFilters({
   maxPrice,
   onMinPriceChange,
   onMaxPriceChange,
+  onReset,
 }: ProductFiltersProps) {
   return (
     <div className="flex flex-col gap-4 rounded-3xl border border-border/70 bg-white/90 p-6 shadow-sm backdrop-blur dark:bg-slate-900 dark:border-white/10">
@@ -76,6 +78,13 @@ function ProductFilters({
             className="w-24 h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
             placeholder="Max"
           />
+          <button
+            type="button"
+            onClick={onReset}
+            className="h-11 rounded-lg border border-input bg-background px-3 text-sm font-medium text-foreground shadow-sm transition hover:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 dark:bg-slate-900"
+          >
+            Reset
+          </button>
         </div>
       </div>
 

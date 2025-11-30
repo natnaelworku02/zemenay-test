@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import axios from '../lib/axios'
 import type { Product } from '../types'
+import {
+  createProductApi,
+  deleteProductApi,
+  fetchProductsApi,
+  updateProductApi,
+} from '@/lib/api/products'
 
 interface ProductsState {
   items: Product[]
@@ -21,22 +26,31 @@ export const fetchProducts = createAsyncThunk(
     q,
     category,
   }: { limit?: number; skip?: number; q?: string; category?: string }) => {
-    const params = new URLSearchParams()
-    params.set('limit', `${limit}`)
-    params.set('skip', `${skip}`)
-    if (q) params.set('q', q)
-
-    let endpoint = `/products?${params.toString()}`
-    if (q) {
-      endpoint = `/products/search?${params.toString()}`
-    } else if (category && category !== 'all') {
-      endpoint = `/products/category/${encodeURIComponent(category)}?${params.toString()}`
-    }
-
-    const res = await axios.get(endpoint)
-    return { ...res.data, query: q, category }
+    const res = await fetchProductsApi({ limit, skip, q, category })
+    return { ...res, query: q, category }
   }
 )
+
+export const createProduct = createAsyncThunk(
+  'products/create',
+  async (payload: Omit<Product, 'id'>) => {
+    const res = await createProductApi(payload)
+    return res
+  }
+)
+
+export const updateProduct = createAsyncThunk(
+  'products/update',
+  async ({ id, data }: { id: number; data: Omit<Product, 'id'> }) => {
+    const res = await updateProductApi(id, data)
+    return res
+  }
+)
+
+export const deleteProduct = createAsyncThunk('products/delete', async (id: number) => {
+  await deleteProductApi(id)
+  return id
+})
 
 const initialState: ProductsState = {
   items: [],
@@ -53,14 +67,14 @@ const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
-    addProduct(state, action: PayloadAction<Product>) {
+    addProductLocal(state, action: PayloadAction<Product>) {
       state.items.unshift(action.payload)
     },
-    updateProduct(state, action: PayloadAction<Product>) {
+    updateProductLocal(state, action: PayloadAction<Product>) {
       const idx = state.items.findIndex((p) => p.id === action.payload.id)
       if (idx >= 0) state.items[idx] = action.payload
     },
-    removeProduct(state, action: PayloadAction<number>) {
+    removeProductLocal(state, action: PayloadAction<number>) {
       state.items = state.items.filter((p) => p.id !== action.payload)
     },
   },
@@ -86,8 +100,18 @@ const productsSlice = createSlice({
       s.loading = false
       s.error = action.error?.message
     })
+    builder.addCase(createProduct.fulfilled, (s, action) => {
+      s.items.unshift(action.payload)
+    })
+    builder.addCase(updateProduct.fulfilled, (s, action) => {
+      const idx = s.items.findIndex((p) => p.id === action.payload.id)
+      if (idx >= 0) s.items[idx] = action.payload
+    })
+    builder.addCase(deleteProduct.fulfilled, (s, action) => {
+      s.items = s.items.filter((p) => p.id !== action.payload)
+    })
   },
 })
 
-export const { addProduct, updateProduct, removeProduct } = productsSlice.actions
+export const { addProductLocal, updateProductLocal, removeProductLocal } = productsSlice.actions
 export default productsSlice.reducer
